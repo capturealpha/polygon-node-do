@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  heimdall:
+    image: 0xpolygon/heimdall
+    container_name: heimdall
+    entrypoint: "/usr/local/bin/heimdalld"
+    command: "start --home=/heimdall-home"
+    ports:
+      - '26656:26656'
+      - '30303:30303'
+    volumes:
+      - /mnt/data/heimdall:/heimdall-home
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: >
+      --path.procfs=/host/proc
+      --path.rootfs=/rootfs
+      --path.sysfs=/host/sys
+      --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
+    restart: unless-stopped
+    labels:
+      org.label-schema.group: "polygon-heimdall"

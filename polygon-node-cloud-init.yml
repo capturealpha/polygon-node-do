@@ -22,8 +22,12 @@ hostname: ${fqdn}
 write_files:
     - path: /etc/environment
       content: |
-          POLYGON_CHAIN="${polygon_chain}"
+          POLYGON_NETWORK_NAME="${polygon_network_name}"
+          POLYGON_NETWORK_CODE="${polygon_network_code}"
+          BOR_MODE="${bor_mode}"
           ETH_RPC_URL="${eth_rpc_url}"
+          HEIMDALL_SEEDS="${heimdall_seeds}"
+          BOR_BOOTNODES="${bor_bootnodes}"
       append: true
 runcmd:
     - pip3 install docker-compose
@@ -31,4 +35,3 @@ runcmd:
     - sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
     - sed -i -e '$aAllowUsers ${prefix}' /etc/ssh/sshd_config
     - mkdir -p /mnt/data/heimdall
-    - chown -R ${prefix}:${prefix} /mnt/data/

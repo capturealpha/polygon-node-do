@@ -1,8 +1,30 @@
 #!/bin/bash
-SEEDS="f4f605d60b8ffaaf15240564e58a81103510631c@159.203.9.164:26656,4fb1bc820088764a564d4f66bba1963d47d82329@44.232.55.71:26656,2eadba4be3ce47ac8db0a3538cb923b57b41c927@35.199.4.13:26656,3b23b20017a6f348d329c102ddc0088f0a10a444@35.221.13.28:26656,25f5f65a09c56e9f1d2d90618aa70cd358aa68da@35.230.116.151:26656"
-wget https://github.com/maticnetwork/launch/blob/master/testnet-v4/without-sentry/heimdall/config/genesis.json
-docker-compose run heimdalld init \
-  --home=/heimdall-home \
-  --chain ${POLYGON_CHAIN} \
-  --eth_rpc_url ${ETH_RPC_URL} \
-  --seed ${SEEDS}
+
+TENDERMINT_CONFIG="/mnt/data/heimdall/config/config.toml"
+HEIMDALL_CONFIG="/mnt/data/heimdall/config/heimdall-config.toml"
+
+# Init heimdall
+sudo chown -R ${USER}:${USER} /mnt/data/
+mkdir -p /mnt/data/bor
+docker-compose run heimdall init --home=/heimdall-home
+sudo chown -R ${USER}:${USER} /mnt/data/heimdall
+sed -i "s#^moniker =.*#moniker = \"${HOSTNAME}\"#g" ${TENDERMINT_CONFIG}
+sed -i "s#^laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:26657\"#g" ${TENDERMINT_CONFIG}
+sed -i "s#^seeds =.*#seeds = \"${HEIMDALL_SEEDS}\"#g" ${TENDERMINT_CONFIG}
+sed -i "s#^persistent_peers =.*#persistent_peers = \"${HEIMDALL_SEEDS}\"#g" ${TENDERMINT_CONFIG}
+sed -i "s#^prometheus =.*#prometheus = true#g" ${TENDERMINT_CONFIG}
+sed -i "s#^max_open_connections =.*#max_open_connections = 100#g" ${TENDERMINT_CONFIG}
+sed -i "s#^chain = .*#chain = \"${POLYGON_NETWORK_NAME}\"#g" ${HEIMDALL_CONFIG}
+sed -i "s#^eth_rpc_url =.*#eth_rpc_url = \"${ETH_RPC_URL}\"#g" ${HEIMDALL_CONFIG}
+sed -i "s#^bor_rpc_url =.*#bor_rpc_url = \"http://bor:8545\"#g" ${HEIMDALL_CONFIG}
+curl -Lso /mnt/data/heimdall/config/genesis.json https://raw.githubusercontent.com/maticnetwork/launch/master/${POLYGON_NETWORK_CODE}/without-sentry/heimdall/config/genesis.json
+
+# Init bor
+mkdir -p /mnt/data/bor/bor/chaindata
+curl -Lso /mnt/data/bor/genesis.json https://raw.githubusercontent.com/maticnetwork/launch/master/${POLYGON_NETWORK_CODE}/without-sentry/bor/genesis.json
+docker-compose run bor --datadir /bor-home init /bor-home/genesis.json
+sudo chown -R ${USER}:${USER} /mnt/data/bor
+
+# Download snapshots
+screen -S chaindata-restore -d -m ./chaindata-restore.sh
+sleep 10

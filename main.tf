@@ -16,5 +16,5 @@ provider "digitalocean" {
 }
 
 provider "cloudflare" {
-  api_token = "4ptzs0nreYm0MFyVBLkThu3JSBaD1Uf8j7DxrT09"
+  api_token = var.cloudflare_api_token
 }

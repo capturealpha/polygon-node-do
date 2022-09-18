@@ -10,7 +10,7 @@ services:
       - "26656:26656"
       - "26657:26657"
     volumes:
-      - /mnt/data/heimdall:/heimdall-home
+      - ${DATA_VOLUME}/heimdall:/heimdall-home
     restart: unless-stopped
     depends_on:
       - node-exporter
@@ -23,7 +23,7 @@ services:
     ports:
       - "1317:1317"
     volumes:
-      - /mnt/data/heimdall:/heimdall-home
+      - ${DATA_VOLUME}/heimdall:/heimdall-home
     restart: unless-stopped
 
   bor:
@@ -63,7 +63,7 @@ services:
       - "9090:9090"
       - "30303:30303"
     volumes:
-      - /mnt/data/bor:/bor-home:rw
+      - ${DATA_VOLUME}/bor:/bor-home:rw
     restart: unless-stopped
     depends_on:
       - heimdall-rest-server
@@ -109,7 +109,7 @@ services:
             - "80:80"
             - "443:443"
         volumes:
-            - /mnt/data/caddy/config:/etc/caddy
+            - ${DATA_VOLUME}/caddy/config:/etc/caddy
         environment:
             - CADDY_USER=${CADDY_USER}
             - CADDY_PASSWORD_HASH=${CADDY_PASSWORD_HASH}

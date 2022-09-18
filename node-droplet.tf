@@ -42,8 +42,9 @@ resource "digitalocean_droplet" "polygon" {
   provisioner "remote-exec" {
     inline = ["cloud-init status --wait",
       <<EOF
-				find ~ -name '*.sh' | xargs chmod +x
-				echo "bash /home/${var.prefix}/node/init.sh"
+        find ~ -name '*.sh' | xargs chmod +x
+        cd node && screen -S init -d -m ./init.sh
+        sleep 10
       EOF
     ]
   }
@@ -53,9 +54,4 @@ resource "digitalocean_droplet" "polygon" {
 resource "digitalocean_volume_attachment" "data" {
   droplet_id = digitalocean_droplet.polygon.id
   volume_id  = digitalocean_volume.data.id
-}
-
-resource "digitalocean_reserved_ip" "primary" {
-  droplet_id = digitalocean_droplet.polygon.id
-  region     = digitalocean_droplet.polygon.region
 }

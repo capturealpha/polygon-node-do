@@ -4,8 +4,8 @@ TENDERMINT_CONFIG="/mnt/data/heimdall/config/config.toml"
 HEIMDALL_CONFIG="/mnt/data/heimdall/config/heimdall-config.toml"
 
 # Init heimdall
-sudo chown -R ${USER}:${USER} /mnt/data/
-mkdir -p /mnt/data/bor
+sudo chown -R ${USER}:${USER} /mnt/data/ &&
+mkdir -p /mnt/data/bor &&
 docker-compose run heimdall init --home=/heimdall-home
 sudo chown -R ${USER}:${USER} /mnt/data/heimdall
 sed -i "s#^moniker =.*#moniker = \"${HOSTNAME}\"#g" ${TENDERMINT_CONFIG}
@@ -24,6 +24,12 @@ mkdir -p /mnt/data/bor/bor/chaindata
 curl -Lso /mnt/data/bor/genesis.json https://raw.githubusercontent.com/maticnetwork/launch/master/${POLYGON_NETWORK_CODE}/without-sentry/bor/genesis.json
 docker-compose run bor --datadir /bor-home init /bor-home/genesis.json
 sudo chown -R ${USER}:${USER} /mnt/data/bor
+
+# Init caddy
+mkdir -p /mnt/data/caddy/config
+mv ./Caddyfile /mnt/data/caddy/config
+echo "CADDY_PASSWORD_HASH=$(docker-compose run caddy caddy hash-password --plaintext ${CADDY_PASSWORD} | tail -1)" \
+  | sudo tee -a /etc/environment
 
 # Download snapshots
 screen -S chaindata-restore -d -m ./chaindata-restore.sh

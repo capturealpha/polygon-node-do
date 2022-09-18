@@ -22,12 +22,15 @@ hostname: ${fqdn}
 write_files:
     - path: /etc/environment
       content: |
+          FQDN="${fqdn}"
           POLYGON_NETWORK_NAME="${polygon_network_name}"
           POLYGON_NETWORK_CODE="${polygon_network_code}"
           BOR_MODE="${bor_mode}"
           ETH_RPC_URL="${eth_rpc_url}"
           HEIMDALL_SEEDS="${heimdall_seeds}"
           BOR_BOOTNODES="${bor_bootnodes}"
+          CADDY_USER="${caddy_user}"
+          CADDY_PASSWORD="${caddy_password}"
       append: true
 runcmd:
     - pip3 install docker-compose

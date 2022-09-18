@@ -1,0 +1,30 @@
+cadvisor.{$DOMAIN} {
+	basicauth /* {
+		{$CADDY_USER} {$CADDY_PASSWORD_HASH}
+	}
+	reverse_proxy cadvisor:8080
+}
+server-metrics.{$DOMAIN} {
+	basicauth /* {
+		{$CADDY_USER} {$CADDY_PASSWORD_HASH}
+	}
+	reverse_proxy node-exporter:9100
+}
+heimdall-metrics.{$DOMAIN} {
+	basicauth /* {
+		{$CADDY_USER} {$CADDY_PASSWORD_HASH}
+	}
+	reverse_proxy heimdall:26660
+}
+bor-metrics.{$DOMAIN} {
+	basicauth /* {
+		{$CADDY_USER} {$CADDY_PASSWORD_HASH}
+	}
+	reverse_proxy bor:6060
+}
+{$DOMAIN} {
+	basicauth /* {
+		{$CADDY_USER} {$CADDY_PASSWORD_HASH}
+	}
+	reverse_proxy bor:8545
+}

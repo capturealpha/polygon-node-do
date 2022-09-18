@@ -6,6 +6,7 @@ services:
     entrypoint: "/usr/local/bin/heimdalld"
     command: "start --home=/heimdall-home"
     ports:
+      - "26660:26660"
       - "26656:26656"
       - "26657:26657"
     volumes:
@@ -52,9 +53,14 @@ services:
       --txpool.pricelimit "30000000000"
       --txpool.lifetime "1h30m0s"
       --maxpeers 200
-      --bootnodes "enode://095c4465fe509bd7107bbf421aea0d3ad4d4bfc3ff8f9fdc86f4f950892ae3bbc3e5c715343c4cf60c1c06e088e621d6f1b43ab9130ae56c2cacfd356a284ee4@18.213.200.99:30303"
+      --bootnodes "${BOR_BOOTNODES}"
+      --metrics
+      --metrics.addr=0.0.0.0
+      --metrics.port=6060
     ports:
       - "8545:8545"
+      - "6060:6060"
+      - "9090:9090"
       - "30303:30303"
     volumes:
       - /mnt/data/bor:/bor-home:rw
@@ -79,3 +85,36 @@ services:
     restart: unless-stopped
     labels:
       org.label-schema.group: "polygon-heimdall"
+
+  cadvisor:
+        image: gcr.io/cadvisor/cadvisor:latest
+        container_name: cadvisor
+        privileged: true
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /cgroup:/cgroup:ro
+        restart: unless-stopped
+        labels:
+            org.label-schema.group: "polygon"
+        devices:
+            - /dev/kmsg:/dev/kmsg
+
+  caddy:
+        image: caddy:latest
+        container_name: caddy
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /mnt/data/caddy/config:/etc/caddy
+        environment:
+            - CADDY_USER=${CADDY_USER}
+            - CADDY_PASSWORD_HASH=${CADDY_PASSWORD_HASH}
+            - DOMAIN=${FQDN}
+        restart: unless-stopped
+        labels:
+            org.label-schema.group: "polygon"
+

@@ -106,7 +106,6 @@ services:
         image: caddy:latest
         container_name: caddy
         ports:
-            - "80:80"
             - "443:443"
         volumes:
             - ${DATA_VOLUME}/caddy/config:/etc/caddy

@@ -9,6 +9,10 @@ do
     sleep 5
 done
 
+# Set firewall rules
+sudo iptables-restore ./iptables.rules
+sudo service netfilter-persistent save
+
 # Init heimdall
 sudo chown -R ${NODE_USER}:${NODE_USER} ${DATA_VOLUME}
 mkdir -p ${DATA_VOLUME}/bor
@@ -38,5 +42,5 @@ echo "CADDY_PASSWORD_HASH=$(docker-compose run caddy caddy hash-password --plain
 | sudo tee -a /etc/environment
 
 # Download snapshots
-#screen -S chaindata-restore -d -m ./chaindata-restore.sh
-./chaindata-restore.sh
+screen -S chaindata-restore -d -m ./chaindata-restore.sh
+sleep 10

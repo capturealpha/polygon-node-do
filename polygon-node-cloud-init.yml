@@ -13,6 +13,7 @@ users:
 packages:
     - fail2ban
     - docker.io
+    - iptables-persistent
     - jq
     - prometheus-node-exporter
     - python3-pip
